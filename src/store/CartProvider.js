@@ -9,15 +9,52 @@ const defaultCartState = {
 
 const cartReducer = (state, action) => {
   if (action.type === "ADD") {
-    const updatedItems = state.items.concat(action.item);
     const updatedTotalAmount =
-      state.totalAmount + action.item.price * action.item.amount;
+      state.totalAmount + action.item.price * action.item.amount; //final amount $$$
 
     const existingCartItemIndex = state.items.findIndex(
+      //returns index of first item in cart with matching id or -1 if not found
       (item) => item.id === action.item.id
     );
-    console.log("existingCartItemIndex", existingCartItemIndex);
-    return { items: updatedItems, totalAmount: updatedTotalAmount };
+
+    const exisitingCartItem = state.items[existingCartItemIndex]; //finds exisiting item in state.items arrays and save in a new const
+    // let updatedItem;
+    let updatedItems;
+
+    if (exisitingCartItem) {
+      //if true, spread data for existing item into a new object and then add action amount(1-5) to current amount.
+      const updatedItem = {
+        ...exisitingCartItem,
+        amount: exisitingCartItem.amount + action.item.amount,
+      };
+      updatedItems = [...state.items]; //new array that doesn't change state.items array in memory.  will be used to put updatedItem
+      updatedItems[existingCartItemIndex] = updatedItem; //OVERWRITE old item with new item
+    } else {
+      //if added for first time...
+      updatedItems = state.items.concat(action.item); //returns a new array with new item added.  doesn't mutate current state.
+    }
+    return { items: updatedItems, totalAmount: updatedTotalAmount }; //return new object to state
+  }
+
+  if (action.type === "REMOVE") {
+    const existingCartItemIndex = state.items.findIndex(
+      (item) => item.id === action.id
+    ); //returns index of first item in cart with matching id or -1 if not found.  amount is total added.
+
+    const existingItem = state.items[existingCartItemIndex]; //finds item in state.items
+    const updatedTotalAmount = state.totalAmount - existingItem.price; //final amount $$$
+
+    let updatedItems;
+    if (existingItem.amount === 1) {
+      //if only one of an item, remove from updatedItems
+      updatedItems = state.items.filter((item) => item.id !== action.id);
+    } else {
+      //if > one
+      const updatedItem = { ...existingItem, amount: existingItem.amount - 1 }; //create new item and subtract 1 from amount
+      updatedItems = [...state.items]; //create a new snapshot of state
+      updatedItems[existingCartItemIndex] = updatedItem; //replace old object at index with new object
+    }
+    return { items: updatedItems, totalAmount: updatedTotalAmount }; //return new object to state
   }
   return defaultCartState;
 };

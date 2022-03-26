@@ -12,9 +12,13 @@ const Cart = (props) => {
 
   const hasItems = cartCtx.items.length > 0; //if cart has items, use to show order button
 
-  const cartItemRemoveHandler = (id) => {};
+  const cartItemRemoveHandler = (id) => {
+    cartCtx.removeItem(id);
+  };
 
-  const cartItemAddHandler = (item) => {};
+  const cartItemAddHandler = (item) => {
+    cartCtx.addItem({ ...item, amount: 1 });
+  };
 
   const cartItems = (
     <uL className={classes["cart-items"]}>
